@@ -217,14 +217,98 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     Podemos observar que una vez terminado la construcción de la imagen no podemos hacer nada con la consola. Docker-compose se queda en modo *"attached"*. Esto significa que se queda en modo espera. Por la consola irá mostrando los logs que se irán producciendo en el contenedor. 
 
-    ![Imagen Paso 3.2](./img/Imagen3.2.gif)
+    ![Imagen Paso 3.2](./img/Imagen3.2.jpg)
 
     Para salir de este modo basta con pulsar la combinación de tecla **"Ctrl + c"**. Esto procederá a cerrar el contenedor y eliminarlo.
 
     Para no está en el modo *attached* cuando ejecutamos el compose, podemos utiliza el modo *detached*. De este modo podemos tener el control de la consola todo el rato. Para ello modificamos el código anterior añadiendo **"-d"** al código introducido.
 
-    > docker-compose up -d --build
+    > docker-compose up -d --build 
+    
+    <br>
 
-<br>
 - db:
+
+    Este servicio se encargará de gestionar la base de datos. El código que lo define es:
+
+    > db:<br>
+    >   &nbsp;&nbsp;&nbsp;image: mysql:8.0<br>
+    >   &nbsp;&nbsp;&nbsp;container_name: lamp-mysql-sdf<br>
+    >   &nbsp;&nbsp;&nbsp;ports: <br>
+    >        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "3399:3306"<br>
+    >   &nbsp;&nbsp;&nbsp;command: --default-authentication-plugin=mysql_native_password<br>
+    >   &nbsp;&nbsp;&nbsp;environment:<br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_DATABASE: dbname<br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_ROOT_PASSWORD: test <br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_USER: lamp<br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_PASSWORD: lamp<br>
+    >   &nbsp;&nbsp;&nbsp;volumes:<br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./dump:/docker-entrypoint-initdb.d<br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./conf:/etc/mysql/conf.d<br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db_data:/var/lib/mysql<br>
+    >   &nbsp;&nbsp;&nbsp;networks:<br>
+    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- lamp-network<br>
+
+    Procedamos al desarrollo de esto:
+    - **db:**. El nombre del servicio.
+    - **container_name:**. Aqui definiremos el nombre del container que se cree durante el proceso.
+    - **ports**. Aquí definiremos el/los puerto/s que trabajará la imagen. Cada uno de ellos estará definido en la lista. Esto se configura poniendo primero el puerto del host y despues el del contenedor separado ambos por ":". En el ejemplo, el host (nuestro ordenador) tendrá el puerto 9000 y el contenedor tendrá el puerto 80.
+    - **environment**. Aqui se declaran las variables de entorno del contenedor. Por ejemplo, en este desarrollo se declaran las claves de conexion a la base de datos, contraseñas y/o usuarios 
+    - **volumes:**. Una de la partes importantes de **Docker** es que los contenedores pueden tener una carpeta compartida nuestro sistema. Aqui definiremos esta/s carpeta/s. A igual que los puertos, cada una de las carpetas se definen en una lista
+    - **networks**. Aqui se le designará la red con la que trabajará. Puede ser una red propia de **Docker** o una customizada (ir al apartado de redes de más adelante)
+
+    De nuevo ejecutamos **docker-compose** para probar que todo va bien.
+    
+
+    > docker-compose up --build<br>
+
+
+    ![Imagen Paso 3.3](./img/Imagen3.3.gif)
+
+    Como podemos observar si utilizamos el **[Workbench](https://dev.mysql.com/downloads/workbench/)**, u otro programa que deseemos, podemos acceder a la base de datos sin problemas.
+
+- phpmyadmin
+
+    Este ultimo servicio creará un contenedor para tener como recurso a **PHPAdmin** como servicio de conexion a la base de datos a través del navegador web. Se conectará al contenedor de la base de datos para obtener la información.
+
+    Como de constumbre tendremos el siguiente código:
+
+    > phpmyadmin:<br>
+    >  &nbsp;&nbsp;&nbsp;image: phpmyadmin/phpmyadmin<br>
+    >  &nbsp;&nbsp;&nbsp;container_name: lamp-phpmyadmin-sdf<br>
+    >  &nbsp;&nbsp;&nbsp;depends_on:<br> 
+    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db<br>
+    >  &nbsp;&nbsp;&nbsp;ports:<br>
+    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 8900:80<br>
+    >  &nbsp;&nbsp;&nbsp;environment:<br>
+    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_USER: lamp<br>
+    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_PASSWORD: lamp<br>
+    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_ROOT_PASSWORD: test <br>
+    >  &nbsp;&nbsp;&nbsp;networks:<br>
+    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- lamp-network<br>
+
+    Destripando un poco el código anterior tenemos que:
+
+    - **phpmyadmin:**. El nombre del servicio.
+    - **image**. Declaramos cual es la imagen base con la que trabajaremos.
+    - **container_name:**. Aqui definiremos el nombre del container que se cree durante el proceso.
+    - **depends_on**. Un contenedor puede ser individual o puede estar relacionado con otro/s. Aqui se puede definir esta dependencia/relacion.
+    - **ports**. Aquí definiremos el/los puerto/s que trabajará la imagen. Cada uno de ellos estará definido en la lista. Esto se configura poniendo primero el puerto del host y despues el del contenedor separado ambos por ":". En el ejemplo, el host (nuestro ordenador) tendrá el puerto 9000 y el contenedor tendrá el puerto 80.
+    - **environment**. Aqui se declaran las variables de entorno del contenedor. Por ejemplo, en este desarrollo se declaran las claves de conexion a la base de datos, contraseñas y/o usuarios 
+    - **networks**. Aqui se le designará la red con la que trabajará. Puede ser una red propia de **Docker** o una customizada (ir al apartado de redes de más adelante)
+
+    De nuevo ejecutamos **docker-compose** para probar que todo va bien.
+
+    > docker-compose up --build<br>
+
+    ![Imagen Paso 3.4](./img/Imagen3.4.gif)
+
+    Para poder probar que todo ha ido bien debemos ir esta vez al explorador web (Chrome, Safari, Brave...) y poner en la barra de navegación:
+
+    > localhost:8900
+
+    Esto nos abrirá directamente la pagina web que tenemos en nuestra carpeta **/www/** y se nos mostrará por el navegador.
+
+    ![Imagen Paso 3.5](./img/Imagen3.5.jpg)
+
 

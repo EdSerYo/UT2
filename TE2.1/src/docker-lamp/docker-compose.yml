@@ -12,8 +12,8 @@ services:
         - lamp-network
 
   db:
-    image: lamp-mysql-sdf
-    container_name: mysql:8.0
+    image: mysql:8.0
+    container_name: lamp-mysql-sdf
     ports: 
         - "3399:3306"
     command: --default-authentication-plugin=mysql_native_password
@@ -31,17 +31,18 @@ services:
 
   phpmyadmin:
       image: phpmyadmin/phpmyadmin
+      container_name: lamp-phpmyadmin-sdf
       depends_on: 
           - db
+      ports:
+          - 8900:80
+      environment:
+          MYSQL_USER: lamp
+          MYSQL_PASSWORD: lamp
+          MYSQL_ROOT_PASSWORD: test 
       networks:
           - lamp-network
-      ports:
-          - 8000:80
-      
-      environment:
-          MYSQL_USER: root
-          MYSQL_PASSWORD: test
-          MYSQL_ROOT_PASSWORD: test 
+
 volumes:
     db_data: 
        driver: local
