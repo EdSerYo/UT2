@@ -187,17 +187,19 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
     
     El código qon el que trabajaremos será:
 
-    > www:<br>
-    >   &nbsp;&nbsp;&nbsp;build: .<br>
-    >   &nbsp;&nbsp;&nbsp;image: daw/lamp-apache-php8-sdf:1.0<br>
-    >   &nbsp;&nbsp;&nbsp;ports: <br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "9000:80"<br>
-    >   &nbsp;&nbsp;&nbsp;volumes:<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./www:/var/www/html<br>
-    >   &nbsp;&nbsp;&nbsp;depends_on:<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-db<br>
-    >   &nbsp;&nbsp;&nbsp;networks:<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-lamp-network
+    ```
+    www:
+        build: .
+        image: daw/lamp-apache-php8-sdf:1.0
+        ports: 
+            - "9000:80"
+        volumes:
+            - ./www:/var/www/html
+        depends_on:
+            - db
+        networks:
+            - lamp-network
+    ```
 
     Este código tan raro que hemos introducido lo vamos a desarrollar poco a poco:
 
@@ -231,24 +233,25 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     Este servicio se encargará de gestionar la base de datos. El código que lo define es:
 
-    > db:<br>
-    >   &nbsp;&nbsp;&nbsp;image: mysql:8.0<br>
-    >   &nbsp;&nbsp;&nbsp;container_name: lamp-mysql-sdf<br>
-    >   &nbsp;&nbsp;&nbsp;ports: <br>
-    >        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- "3399:3306"<br>
-    >   &nbsp;&nbsp;&nbsp;command: --default-authentication-plugin=mysql_native_password<br>
-    >   &nbsp;&nbsp;&nbsp;environment:<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_DATABASE: dbname<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_ROOT_PASSWORD: test <br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_USER: lamp<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_PASSWORD: lamp<br>
-    >   &nbsp;&nbsp;&nbsp;volumes:<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./dump:/docker-entrypoint-initdb.d<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./conf:/etc/mysql/conf.d<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db_data:/var/lib/mysql<br>
-    >   &nbsp;&nbsp;&nbsp;networks:<br>
-    >       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- lamp-network<br>
-
+    ```
+    db:
+        image: mysql:8.0
+        container_name: lamp-mysql-sdf
+        ports: 
+            - "3399:3306"
+        command: --default-authentication-plugin=mysql_native_password
+        environment:
+            MYSQL_DATABASE: dbname
+            MYSQL_ROOT_PASSWORD: test 
+            MYSQL_USER: lamp
+            MYSQL_PASSWORD: lamp
+        volumes:
+            - ./dump:/docker-entrypoint-initdb.d
+            - ./conf:/etc/mysql/conf.d
+            - db_data:/var/lib/mysql
+        networks:
+            - lamp-network
+    ```
     Procedamos al desarrollo de esto:
     - **db:**. El nombre del servicio.
     - **container_name:**. Aqui definiremos el nombre del container que se cree durante el proceso.
@@ -273,20 +276,21 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     Como de constumbre tendremos el siguiente código:
 
-    > phpmyadmin:<br>
-    >  &nbsp;&nbsp;&nbsp;image: phpmyadmin/phpmyadmin<br>
-    >  &nbsp;&nbsp;&nbsp;container_name: lamp-phpmyadmin-sdf<br>
-    >  &nbsp;&nbsp;&nbsp;depends_on:<br> 
-    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- db<br>
-    >  &nbsp;&nbsp;&nbsp;ports:<br>
-    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- 8900:80<br>
-    >  &nbsp;&nbsp;&nbsp;environment:<br>
-    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_USER: lamp<br>
-    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_PASSWORD: lamp<br>
-    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MYSQL_ROOT_PASSWORD: test <br>
-    >  &nbsp;&nbsp;&nbsp;networks:<br>
-    >      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- lamp-network<br>
-
+    ```
+      phpmyadmin:
+      image: phpmyadmin/phpmyadmin
+      container_name: lamp-phpmyadmin-sdf
+      depends_on: 
+          - db
+      ports:
+          - 8900:80
+      environment:
+          MYSQL_USER: lamp
+          MYSQL_PASSWORD: lamp
+          MYSQL_ROOT_PASSWORD: test 
+      networks:
+          - lamp-network
+    ```
     Destripando un poco el código anterior tenemos que:
 
     - **phpmyadmin:**. El nombre del servicio.
@@ -311,4 +315,25 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     ![Imagen Paso 3.5](./img/Imagen3.5.jpg)
 
+##### VOLUMENES #####
 
+
+
+##### REDES #####
+
+En **Docker** existe tres redes por defecto, cada uno con su propio driver
+
+- **Bridge**. Bridge es la red estándar y network driver por defecto, por lo que se crea una vez se inicia la plataforma de Docker y sus contenedores se conectan a ella, a menos que el usuario indique específicamente lo contrario. Usualmente se utilizan cuando las aplicaciones del cliente se ejecutan en contenedores independientes entre sí, pero que requieren de una comunicación.
+
+- **Host**. El controlador de redes en Docker denominado Host es el encargado de eliminar el aislamiento que pueda existir entre un contenedor de la plataforma y el host. De manera que, cuando la red se encuentra en modo host, tiene la posibilidad de utilizarse con el objetivo de mejorar el rendimiento. Al mismo tiempo, este controlador de redes docker funciona en los momentos donde un container requiera controlar una gran diversidad de puertos, debido a que no necesita realizar el proceso de traducción de direcciones de red y, además, no se crea un proxy de usuario para cada uno de los puertos.
+
+- **none**. Esta opción de red de contenedores es la encargada de inhabilitar todas las redes de la plataforma de contenedores.
+
+Aunque existen otras. Estas tres son las principales. Nosotros podemos personalizar una red para que nuestro contenedores se conecte entre ellos. Para ello en el archivo del **docker-compose** definimos la/s red/es.
+
+```
+networks:
+    lamp-network:
+        driver: bridge
+```
+Podemos definir todas las redes que queramos. Solo tenemos que poner el tipo de driver que utilizará cada red que declaremos.
