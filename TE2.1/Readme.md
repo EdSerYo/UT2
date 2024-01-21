@@ -201,4 +201,30 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     Este código tan raro que hemos introducido lo vamos a desarrollar poco a poco:
 
-    - **www:**. Este es nombre del servicio. 
+    - **www:**. Este es nombre del servicio. En esta imagen construiremos la base de todo nuestro servicio. contendrá PHP, Apache y MySQL, además de que contendrá nuestros archivos.
+    - **build**. Con esto definiremos como construiremos la imagen. Como tenemos un **Dockerfile** utilizaremos "." para hacer referencia a él que está en la misma carpeta que el archivo del *docker-compose*.
+    - **image**. Definiremos el nombre de la imagen que construiremos y su version.
+    - **ports**. Aquí definiremos el/los puerto/s que trabajará la imagen. Cada uno de ellos estará definido en la lista. Esto se configura poniendo primero el puerto del host y despues el del contenedor separado ambos por ":". En el ejemplo, el host (nuestro ordenador) tendrá el puerto 9000 y el contenedor tendrá el puerto 80
+    - **volumes:**. Una de la partes importantes de **Docker** es que los contenedores pueden tener una carpeta compartida nuestro sistema. Aqui definiremos esta/s carpeta/s. A igual que los puertos, cada una de las carpetas se definen en una lista
+    - **depends_on**. Un contenedor puede ser individual o puede estar relacionado con otro/s. Aqui se puede definir esta dependencia.
+    - **networks**. Aqui se le designará la red con la que trabajará. Puede ser una red propia de **Docker** o una customizada (ir al apartado de redes de más adelante)
+
+    Para poder probar esta parte ponemos el siguiente comando en la consola de comando
+
+    > docker-compose up --build
+
+    ![Imagen Paso 3.1](./img/Imagen3.1.gif)
+
+    Podemos observar que una vez terminado la construcción de la imagen no podemos hacer nada con la consola. Docker-compose se queda en modo *"attached"*. Esto significa que se queda en modo espera. Por la consola irá mostrando los logs que se irán producciendo en el contenedor. 
+
+    ![Imagen Paso 3.2](./img/Imagen3.2.gif)
+
+    Para salir de este modo basta con pulsar la combinación de tecla **"Ctrl + c"**. Esto procederá a cerrar el contenedor y eliminarlo.
+
+    Para no está en el modo *attached* cuando ejecutamos el compose, podemos utiliza el modo *detached*. De este modo podemos tener el control de la consola todo el rato. Para ello modificamos el código anterior añadiendo **"-d"** al código introducido.
+
+    > docker-compose up -d --build
+
+<br>
+- db:
+
