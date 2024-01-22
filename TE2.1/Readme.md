@@ -30,7 +30,7 @@ En este paso crearemos y prepararemos una carpeta de trabajo. Para eso hacemos:
 
 2. Descargar el archivo [Recurso](https://github.com/jssfpciclos/DAW_daweb/blob/main/UT2/TE2.1/res/Tarea2.1.recursos.rar), copiarla a la carpeta de trabajo **"UT2/src/docker-lamp"** y la descomprimimos.
 
-    ![Imagen Paso 1.3](./img/imagen1.3.jpg)
+    ![Imagen Paso 1.3](./img/Imagen1.3.jpg)
 
 #### Paso 2. Imagen docker PHP
 
