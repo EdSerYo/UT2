@@ -26,11 +26,11 @@ Se necesita tener instalado en el sistema DOCKER y Docker-compose. Para ello dir
 En este paso crearemos y prepararemos una carpeta de trabajo. Para eso hacemos:
 1. Crear una carpeta de trabajo llamada **"UT2/T2.1"** ya sea desde terminal con *"mkdir"* o desde el explorador de archivos con *"Nueva Carpeta"* y creamos la siguiente estructura de árbol.
 
-![Imagen Paso 1.1](./img/Imagen1.1.gif) ![Imagen Paso 1.2](./img/Imagen1.2.jpg)
+    ![Imagen Paso 1.1](./img/Imagen1.1.gif) ![Imagen Paso 1.2](./img/Imagen1.2.jpg)
 
 2. Descargar el archivo [Recurso](https://github.com/jssfpciclos/DAW_daweb/blob/main/UT2/TE2.1/res/Tarea2.1.recursos.rar), copiarla a la carpeta de trabajo **"UT2/src/docker-lamp"** y la descomprimimos.
 
-![Imagen Paso 1.3](./img/imagen1.3.jpg)
+    ![Imagen Paso 1.3](./img/imagen1.3.jpg)
 
 #### Paso 2. Imagen docker PHP
 
@@ -55,7 +55,9 @@ En este  paso vamos a crear una imagen Docker que incluya Apache y PHP, a partir
 
 2. Instalar el driver de MySQL.
 
-    > docker-php-ext-install mysqli
+    ```
+    docker-php-ext-install mysqli
+    ```
 
     Con este comando instalamos el driver dentro del contenedor
 
@@ -65,31 +67,28 @@ En este  paso vamos a crear una imagen Docker que incluya Apache y PHP, a partir
 
     Para ello debemos ejecutar varios comandos seguidos.
 
-    > apt-get update
-    >
-    > apt-get install -y sendmail libpng-dev 
-    >
-    > apt-get install -y libzip-dev 
-    >
-    > apt-get install -y zlib1g-dev 
-    >
-    > apt-get install -y libonig-dev 
-    >
-    > rm -rf /var/lib/apt/lists/* 
-    >
-    > docker-php-ext-install zip
-    >
-    > docker-php-ext-install mbstring
-    >
-    > docker-php-ext-install zip
-    >
-    > docker-php-ext-install gd
+    ```
+    apt-get update
+
+    apt-get install -y sendmail libpng-dev 
+    apt-get install -y libzip-dev 
+    apt-get install -y zlib1g-dev 
+    apt-get install -y libonig-dev 
+    rm -rf /var/lib/apt/lists/* 
+    docker-php-ext-install zip
+    
+    docker-php-ext-install mbstring
+    docker-php-ext-install zip
+    docker-php-ext-install gd
+    ```
 
     Todo esto son librerias necesarias para que el driver MySQL funcione
 
 4. Y ya por último habilitamos el módulo *"rewrite"* de apache
 
-    > a2enmod rewrite
+    ```
+    a2enmod rewrite
+    ```
 
 <br><br>
 Y tras todo estos pasos ya tendriamos lista un contenedor para trabajar. Después de esto tendriamos que construir una imagen de este contenedor. Para ello:
@@ -98,7 +97,9 @@ Y tras todo estos pasos ya tendriamos lista un contenedor para trabajar. Despué
 
 - Ejecutamos el codigo:
 
-    > docker ps -a
+    ```
+    docker ps -a
+    ```
 
     Este comando nos muestra a todos los contenedores que estén o no en ejecucion de este comando nos fijamos mayormente en el id del container
 
@@ -106,7 +107,9 @@ Y tras todo estos pasos ya tendriamos lista un contenedor para trabajar. Despué
 
 - Creamos una imagen del contenedor anterior. Para ello ejecutamos el siguiente código:
 
-    > docker commit 786cf5994ade DAW_PHP_Apache_MySQl
+    ```
+    docker commit 786cf5994ade DAW_PHP_Apache_MySQl
+    ```
 
     Con **commit** creamos una imagen. Para ello introducimos dos parámetros el id del contenedor base y el nombre de la imagen que queremos crear.
 
@@ -119,22 +122,24 @@ Como se puede ver líneas más arriba. la ejecucion de paso a paso es muy tedios
 
 El archivo lo crearemos en **"TE2.1/src/"** tiene el siguiente codigo:
 
-> FROM php:8.0.0-apache
-> 
-> RUN docker-php-ext-install mysqli
-> RUN apt-get update \
->    && apt-get install -y sendmail libpng-dev \
->    && apt-get install -y libzip-dev \
->    && apt-get install -y zlib1g-dev \
->    && apt-get install -y libonig-dev \
->    && rm -rf /var/lib/apt/lists/* \
->    && docker-php-ext-install zip
->
-> RUN docker-php-ext-install mbstring
-> RUN docker-php-ext-install zip
-> RUN docker-php-ext-install gd
->
-> RUN a2enmod rewrite
+```
+FROM php:8.0.0-apache
+ 
+RUN docker-php-ext-install mysqli
+RUN apt-get update \
+    && apt-get install -y sendmail libpng-dev \
+    && apt-get install -y libzip-dev \
+    && apt-get install -y zlib1g-dev \
+    && apt-get install -y libonig-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && docker-php-ext-install zip
+
+RUN docker-php-ext-install mbstring
+RUN docker-php-ext-install zip
+RUN docker-php-ext-install gd
+
+RUN a2enmod rewrite
+```
 
 Como se puede observar son el mismo código que en el apartado anterior diferenciando dos comandos.
 
@@ -145,7 +150,9 @@ Una cosa importante es la creación de capas dentro de una imagen. Cada capa rep
 
 Ya solo nos faltaría construir la imagen. Para ello introducimos:
 
-> docker build -t php-apache8.0-sdf:1.0 .
+```
+docker build -t php-apache8.0-sdf:1.0 .
+```
 
 - Con **build** construimos una imagen para indicarle que utilizaremos un **Dockerfile** pondremos un "." al final de la setencia. 
 - Con **-t** indicamos que vamos a introducir una version.
@@ -155,7 +162,9 @@ Ya solo nos faltaría construir la imagen. Para ello introducimos:
 
 Para comprobar que nuestra imagen se ha creado ejecutamos:
 
-> docker images
+```
+docker images
+```
 
 ![Imagen Paso 2.7](./img/Imagen2.7.jpg)
 
@@ -164,9 +173,11 @@ Como se puede observar, simplifica mucho la creacion de una imagen. Con un archi
 
 Por último borraremos esta imagen para que no interfiera en el resto de la práctica
 
-> docker rmi ad82f768cc87
->
-> docker images
+```
+docker rmi ad82f768cc87
+
+docker images
+```
 
 ![Imagen Paso 2.8](./img/Imagen2.8.jpg)
 
@@ -213,7 +224,9 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     Para poder probar esta parte ponemos el siguiente comando en la consola de comando
 
-    > docker-compose up --build
+    ```
+    docker-compose up --build
+    ```
 
     ![Imagen Paso 3.1](./img/Imagen3.1.gif)
 
@@ -225,8 +238,10 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     Para no está en el modo *attached* cuando ejecutamos el compose, podemos utiliza el modo *detached*. De este modo podemos tener el control de la consola todo el rato. Para ello modificamos el código anterior añadiendo **"-d"** al código introducido.
 
-    > docker-compose up -d --build 
-    
+    ```
+    docker-compose up -d --build 
+    ```
+
     <br>
 
 - db:
@@ -252,6 +267,7 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
         networks:
             - lamp-network
     ```
+
     Procedamos al desarrollo de esto:
     - **db:**. El nombre del servicio.
     - **container_name:**. Aqui definiremos el nombre del container que se cree durante el proceso.
@@ -262,9 +278,9 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     De nuevo ejecutamos **docker-compose** para probar que todo va bien.
     
-
-    > docker-compose up --build<br>
-
+    ```
+    docker-compose up --build
+    ```
 
     ![Imagen Paso 3.3](./img/Imagen3.3.gif)
 
@@ -303,21 +319,39 @@ En servicios incluiremos todas las imagenes que vamos a trabajar. En cada imagen
 
     De nuevo ejecutamos **docker-compose** para probar que todo va bien.
 
-    > docker-compose up --build<br>
+    ```
+    docker-compose up --build<br>
+    ```
 
     ![Imagen Paso 3.4](./img/Imagen3.4.gif)
 
     Para poder probar que todo ha ido bien debemos ir esta vez al explorador web (Chrome, Safari, Brave...) y poner en la barra de navegación:
 
-    > localhost:8900
+    ```
+    localhost:8900
+    ```
 
     Esto nos abrirá directamente la pagina web que tenemos en nuestra carpeta **/www/** y se nos mostrará por el navegador.
 
     ![Imagen Paso 3.5](./img/Imagen3.5.jpg)
 
+<br>
+
 ##### VOLUMENES #####
 
+Un contenedor es un sistema cerrado que ejecuta lo que le tengamos definido. Sus datos se pierden una vez eliminado, pero si queremos que esos datos sean recurrentes, es decir, queremos poder trabajar con ellos, guardarlos y cuando creemos el contenedor de nuevo seguir trabajando con ellos, necesitamos una herramienta para poder configurar. Para ello tenemos **Docker volumen**.
 
+Para nuestro proyecto solo vamos a definir donde se guarda los datos de la base de datos. Por eso en este apartado pondremos:
+
+```
+volumes:
+    db_data: 
+        driver: local
+```
+
+Gracias a esto tendremos la persitencia de datos. Cuando levantemos el sistema se volverá a conectar nuestro host con el contenedor de la base de datos y poder continuar por donde lo dejamos.
+
+<br>
 
 ##### REDES #####
 
@@ -337,3 +371,83 @@ networks:
         driver: bridge
 ```
 Podemos definir todas las redes que queramos. Solo tenemos que poner el tipo de driver que utilizará cada red que declaremos.
+
+
+Y hasta aquí todo lo que se daba. Podemos ver nuestro archivo **docker-compose** completo ***[aqui](./src/docker-lamp/docker-compose.yml)***.
+
+### Anexo I. DockerHub ###
+
+**DockerHub** es un registro para repositorios de software en la nube, es decir, actúa como una especie de biblioteca para las imágenes Docker. Nuestra imagen creada la podemos subir para que nuestros compañeros, u otros usuarios, puedan tener acceso y ahorrar tiempo en diseñar o construir imagenes.
+
+Para ello ejecutamos el código:
+
+```
+docker push {userDockerHub}/{imagen}
+```
+![Imagen Anexo1.1](./img/ImagenAI.1.jpg)
+![Imagen Anexo1.1](./img/ImagenAI.2.jpg)
+
+
+
+### Anexo II. Resumen Códigos ###
+
+Para ver los contenedores creados en ejecucion
+
+```
+docker ps
+```
+
+Para ver todos los contenedores, en ejecucion o no, se le añade **"-a"**:
+
+```
+docker ps -a
+```
+
+Para ver imagenes en nuestro repositorio local
+
+```
+docker images
+```
+
+Para eliminar una imagen (la *id* la obtenemos al mostrar las imagenes):
+```
+docker rmi {id imagen}
+```
+
+Para construir una imagen de un contenedor
+
+```
+docker commit 786cf5994ade DAW_PHP_Apache_MySQl
+```
+
+Para construir una imagen por docker-compose (*"-t"* es que le vamos añadir una version al construirla):
+
+```
+docker build -t php-apache8.0-sdf:1.0 .
+```
+
+Para iniciar *docker-compose*:
+
+```
+docker-compose up
+```
+
+Si añadimos **"--build"** forzamos la reconstruccion de la imagen, aunque no haya cambios:
+
+Si queremos cerrar el servicio y desconectar los contenedores debemos introducir:
+
+```
+docker-compose close
+```
+
+Si lo que queremos es finalizar el servicio y borrar los contenedores debemos introducir:
+
+```
+docker-compose down
+```
+
+Otra cosa que debemos recordar es el modo *attach* y el *detached*. Por defecto los comandos introducidos son en modo *attach*. Para estar en modo *detached* debemos introducir **"-d"** en la introducción del código:
+
+```
+docker-compose up -d
+```
